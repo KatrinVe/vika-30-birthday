@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Пророчество о Тридцатом Дне Рождения</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,500;0,600;0,700;1,500&family=Alegreya:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#0d120e;
+    --panel:rgba(16,22,17,.88);
+    --parchment:#e9dfc6;
+    --parchment-dim:#c9bfa4;
+    --gold:#c9a24b;
+    --gold-bright:#e8c76e;
+    --ember:#c65b2e;
+    --shadow:rgba(0,0,0,.55);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    font-family:'Alegreya',Georgia,serif;
+    background:var(--night);
+    color:var(--parchment);
+    overflow:hidden;
+  }
+  #stage{
+    position:relative;
+    height:100dvh;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    background-size:cover;
+    background-position:center;
+    transition:background-image .3s;
+  }
+  /* тёмная вуаль поверх фоновой картинки, чтобы текст читался */
+  #stage::before{
+    content:'';
+    position:absolute;inset:0;
+    background:linear-gradient(180deg, rgba(13,18,14,.25) 0%, rgba(13,18,14,.35) 45%, rgba(13,18,14,.92) 78%);
+    pointer-events:none;
+  }
+  .scene{
+    position:relative;
+    z-index:2;
+    padding:20px 22px calc(24px + env(safe-area-inset-bottom));
+    max-width:560px;
+    margin:0 auto;
+    width:100%;
+    max-height:78dvh;
+    overflow-y:auto;
+    opacity:0;
+    transform:translateY(14px);
+    animation:rise .8s ease forwards;
+  }
+  @keyframes rise{to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion: reduce){
+    .scene{animation:none;opacity:1;transform:none}
+  }
+  .stage-name{
+    font-family:'Cormorant',serif;
+    font-weight:600;
+    font-size:15px;
+    letter-spacing:.14em;
+    color:var(--gold);
+    margin-bottom:6px;
+  }
+  h1{
+    font-family:'Cormorant',serif;
+    font-weight:700;
+    font-size:clamp(26px,7vw,34px);
+    line-height:1.12;
+    color:var(--gold-bright);
+    text-shadow:0 2px 12px var(--shadow);
+    margin-bottom:12px;
+  }
+  .text{
+    font-size:16.5px;
+    line-height:1.55;
+    text-shadow:0 1px 6px var(--shadow);
+  }
+  .text p{margin-bottom:10px}
+  .text em{color:var(--gold-bright)}
+  .cats{
+    margin:12px 0;
+    padding:10px 14px;
+    border-left:2px solid var(--gold);
+    background:rgba(201,162,75,.08);
+    font-style:italic;
+    font-size:15px;
+    color:var(--parchment-dim);
+    border-radius:0 6px 6px 0;
+  }
+  .riddle{
+    margin-top:14px;
+    padding:14px 16px;
+    background:var(--panel);
+    border:1px solid rgba(201,162,75,.4);
+    border-radius:10px;
+    box-shadow:0 6px 24px var(--shadow);
+  }
+  .riddle-label{
+    font-family:'Cormorant',serif;
+    font-weight:600;
+    font-size:14px;
+    letter-spacing:.1em;
+    color:var(--gold);
+    margin-bottom:8px;
+  }
+  .riddle-q{font-size:16px;line-height:1.5;margin-bottom:12px}
+  .answer-row{display:flex;gap:8px}
+  input[type=text]{
+    flex:1;
+    min-width:0;
+    font-family:'Alegreya',serif;
+    font-size:17px;
+    padding:12px 14px;
+    color:var(--parchment);
+    background:rgba(13,18,14,.85);
+    border:1px solid rgba(201,162,75,.5);
+    border-radius:8px;
+    outline:none;
+  }
+  input[type=text]:focus{border-color:var(--gold-bright);box-shadow:0 0 0 2px rgba(232,199,110,.2)}
+  button{
+    font-family:'Cormorant',serif;
+    font-weight:700;
+    font-size:17px;
+    letter-spacing:.04em;
+    padding:12px 18px;
+    color:#1a140a;
+    background:linear-gradient(180deg,var(--gold-bright),var(--gold));
+    border:none;border-radius:8px;
+    cursor:pointer;
+    transition:transform .1s;
+  }
+  button:active{transform:scale(.97)}
+  button:focus-visible{outline:2px solid var(--parchment);outline-offset:2px}
+  .wide{width:100%;margin-top:14px;padding:14px}
+  .feedback{
+    min-height:22px;
+    margin-top:10px;
+    font-size:15px;
+    font-style:italic;
+    color:var(--parchment-dim);
+  }
+  .feedback.wrong{color:#d98f6b}
+  .hint-btn{
+    margin-top:8px;
+    background:none;
+    border:none;
+    color:var(--gold);
+    font-family:'Alegreya',serif;
+    font-size:14px;
+    font-style:italic;
+    text-decoration:underline;
+    text-underline-offset:3px;
+    padding:4px 0;
+  }
+  .journey{
+    position:absolute;
+    top:calc(12px + env(safe-area-inset-top));
+    left:0;right:0;
+    z-index:3;
+    display:flex;
+    justify-content:center;
+    gap:10px;
+  }
+  .journey span{
+    width:9px;height:9px;
+    border-radius:50%;
+    border:1px solid var(--gold);
+    background:transparent;
+    transition:background .4s;
+  }
+  .journey span.lit{background:var(--gold-bright);box-shadow:0 0 8px rgba(232,199,110,.7)}
+  /* финальное кольцо */
+  .ring{
+    width:150px;height:150px;
+    margin:6px auto 14px;
+    border-radius:50%;
+    border:11px solid var(--gold);
+    box-shadow:0 0 34px rgba(198,91,46,.75), inset 0 0 22px rgba(198,91,46,.55);
+    display:flex;align-items:center;justify-content:center;
+    animation:glow 2.6s ease-in-out infinite;
+  }
+  @keyframes glow{
+    0%,100%{box-shadow:0 0 24px rgba(198,91,46,.55), inset 0 0 16px rgba(198,91,46,.4)}
+    50%{box-shadow:0 0 48px rgba(232,199,110,.85), inset 0 0 26px rgba(198,91,46,.7)}
+  }
+  @media (prefers-reduced-motion: reduce){.ring{animation:none}}
+  .ring-script{
+    font-family:'Cormorant',serif;
+    font-style:italic;
+    font-size:13px;
+    color:var(--gold-bright);
+    text-align:center;
+    padding:0 14px;
+  }
+  a.gift{
+    display:block;
+    text-align:center;
+    font-family:'Cormorant',serif;
+    font-weight:700;
+    font-size:19px;
+    color:#1a140a;
+    background:linear-gradient(180deg,var(--gold-bright),var(--gold));
+    padding:15px;
+    border-radius:10px;
+    text-decoration:none;
+    margin-top:14px;
+  }
+</style>
+</head>
+<body>
+
+<script>
+/* ============================================================
+   НАСТРОЙКИ — редактируй только этот блок
+   ============================================================ */
+const CONFIG = {
+
+  героиня: "Вика",
+
+  /* Ссылка на подарочную карту Amazon — вставь сюда свою ссылку */
+  giftLink: "https://drive.google.com/file/d/16MB6QIftz4suRqv96DgXy3ziwjhOJ-Zt/view?usp=sharing",
+
+  /* Если вспомнишь имя парня — впиши, иначе он останется "твой верный Сэмуайз" */
+  парень: "твой верный Сэмуайз",
+
+  /* Фоновые картинки из Gemini. Положи файлы рядом с index.html
+     в папку img/ и укажи имена. Если файла нет — будет тёмный фон,
+     квест всё равно работает. Генерируй в 9:16 (вертикальные). */
+  images: {
+    shire:   "img/shire.jpg",     // Шир: уютные холмы, круглые двери, рассвет
+    rivendell:"img/rivendell.jpg",// Ривенделл: эльфийские арки, водопады
+    moria:   "img/moria.jpg",     // Мория: тёмные залы, колонны, зелёный свет
+    lorien:  "img/lorien.jpg",    // Лотлориэн: серебряные деревья, золотой свет
+    doom:    "img/doom.jpg"       // Роковая гора: лава, пепел, зарево
+  }
+};
+/* ============================================================ */
+
+/* Ответы: строчными, без пробелов по краям. Подходит любой из списка.
+   "contains" — ответ засчитывается, если введённое содержит слово. */
+const STAGES = [
+{
+  key:"shire",
+  place:"Глава I · Шир",
+  title:"Нежданное письмо",
+  html:`
+    <p>Дорогая <em>Вика</em>!</p>
+    <p>Прости, что письмо шло 30 лет — совиная почта в другой саге, а орлы, как всегда, заняты. Пророчество гласит: в день, когда героине исполнится трижды десять, она отправится в путь к <em>Роковой горе</em> — но не уничтожать сокровище, а забрать его. Саурон в ярости, юристы Мордора в панике.</p>
+    <p>Путь начинается у ворот Шира. Но ворота, как водится, заперты.</p>
+    <p style="text-align:right">— Гэндальф Серый (теперь Серебристый — возраст, знаешь ли)</p>
+  `,
+  cats:`Люк и Лея трутся о ворота: «Мя-я. Мы вообще-то из другой франшизы, но за Прелесть — куда угодно».`,
+  riddle:"На вратах эльфийская надпись: «Скажи, кто ты входящему в дом, — и войди». Одно слово. То самое, у ворот Мории.",
+  answers:["друг","mellon","меллон","мелон","friend"],
+  hint:"Гэндальф долго тупил, а Фродо догадался: как будет «друг» по-эльфийски? Можно и по-русски.",
+  wrong:"Ворота молчат. Люк смотрит с осуждением."
+},
+{
+  key:"rivendell",
+  place:"Глава II · Ривенделл",
+  title:"Совет Элронда (сокращённая версия)",
+  html:`
+    <p>Совет заседает третий час. Элронд зачитывает историю: <em>«Двенадцать лет назад, в восточных землях Москвы, в чертогах общежития на Выхино, судьба свела двух героинь. Одна была облачена в священную тунику команды по лакроссу Бейкон Хиллс — и вторая узнала знак».</em></p>
+    <p>Так родилось Братство. Оно умеет главное: молчать вместе — и это уже квест дня.</p>
+  `,
+  cats:`Лея зевает: «Три часа разговоров и ни одной открытой банки корма. Совет так себе».`,
+  riddle:"Элронд требует пароль: номер чертога, где жила вторая героиня Братства. Три знака силы, все одинаковые.",
+  answers:["555"],
+  hint:"Номер комнаты в общаге. Красивый, как три кольца эльфов.",
+  wrong:"Элронд поднимает бровь. Это надолго."
+},
+{
+  key:"moria",
+  place:"Глава III · Мория",
+  title:"Мост Казад-Дум",
+  html:`
+    <p>Тьма. Барабаны в глубине. На мосту — Балрог, но какой-то странный: в неоновых огнях, пахнет бензином и токийской ночью.</p>
+    <p>Рядом ${CONFIG.парень} держит факел и рюкзак с припасами: «Я не могу пройти испытание за тебя… но могу подержать твои вещи».</p>
+    <p>Балрог ревёт: <em>«ТЫ НЕ ПРОЙДЁШЬ… пока не назовёшь древнее искусство скольжения боком, которому поклоняются в моём любимом, третьем свитке кринж-саги о Семье!»</em></p>
+  `,
+  cats:`Люк и Лея синхронно шипят на Балрога, потом теряют интерес и начинают умываться.`,
+  riddle:"Назови это искусство (а лучше — свиток целиком).",
+  answers:["дрифт","токийский дрифт","токио дрифт","tokyo drift","дрифт токио"],
+  contains:["дрифт","drift"],
+  hint:"Форсаж. Та самая часть. Япония, неон, Хан.",
+  wrong:"Балрог газует и делает вид, что не расслышал."
+},
+{
+  key:"lorien",
+  place:"Глава IV · Лотлориэн",
+  title:"Зеркало Галадриэль",
+  html:`
+    <p>Галадриэль подводит тебя к зеркалу: «Оно показывает не будущее. Оно показывает то, что видят друзья».</p>
+    <p>В воде отражается: девчонка в толстовке Бейкон Хиллс, которая стала человеком, рядом с которым можно молчать и смеяться до слёз над «Порараzzи». Человеком, который уехал первым — и показал, что дорога существует. Смелость бывает тихой: собрать чемодан и поехать. Ты сделала это — и за тобой пошли.</p>
+  `,
+  cats:`Коты смотрят в зеркало и видят там только себя. Довольны.`,
+  riddle:"Зеркало спрашивает: в каком году героиня ступила на земли Германии и открыла путь остальным?",
+  answers:["2021","в 2021","2021 год"],
+  contains:["2021"],
+  hint:"Год Великого Переезда. Двадцать двадцать...",
+  wrong:"Вода рябит. Галадриэль терпеливо ждёт — у неё впереди вечность, у тебя тортик."
+},
+{
+  key:"doom",
+  place:"Глава V · Роковая гора",
+  title:"Одна Карта, чтоб править всеми",
+  final:true,
+  html:`
+    <p>Ты стоишь над огнём Ородруина. По сценарию сокровище надо бросить в лаву. Но пророчество читали невнимательно: там написано <em>«забрать»</em>.</p>
+    <p>Из пламени поднимается артефакт. На нём проступает древняя вязь:</p>
+  `,
+  ringScript:"Одна Карта, чтоб править всеми, Одна Карта, чтоб вишлист найти, Одна Карта, чтоб всё заказать и в корзине навек соединить",
+  outro:`
+    <p><em>С тридцатилетием, Вика!</em> Фродо в этом возрасте ещё завтракал по два раза и никуда не собирался — а ты уже прошла Мордор, Германию и Выхино. Люблю тебя. Твоё Братство — навсегда.</p>
+  `,
+  cats:`Люк и Лея хором: «Прелес-с-сть. Коробки от неё — наши».`
+}
+];
+
+let current = 0;
+
+function norm(s){return s.toLowerCase().replace(/ё/g,"е").trim()}
+
+function render(i){
+  const st = STAGES[i];
+  const stage = document.getElementById("stage");
+  // фон: пробуем картинку, иначе тёмный градиент
+  const img = new Image();
+  img.onload = ()=>{ stage.style.backgroundImage = `url('${CONFIG.images[st.key]}')` };
+  img.onerror = ()=>{ stage.style.backgroundImage = "radial-gradient(ellipse at 50% 30%, #1e2a20 0%, #0d120e 70%)" };
+  img.src = CONFIG.images[st.key];
+
+  const dots = STAGES.map((_,n)=>`<span class="${n<=i?'lit':''}"></span>`).join("");
+
+  let inner = `
+    <div class="stage-name">${st.place}</div>
+    <h1>${st.title}</h1>
+    <div class="text">${st.html}</div>
+    <div class="cats">${st.cats}</div>
+  `;
+
+  if(st.final){
+    inner += `
+      <div class="ring"><div class="ring-script">${st.ringScript}</div></div>
+      <div class="text">${st.outro}</div>
+      <a class="gift" href="${CONFIG.giftLink}" target="_blank" rel="noopener">Забрать Прелесть ✦</a>
+    `;
+  } else {
+    inner += `
+      <div class="riddle">
+        <div class="riddle-label">Испытание</div>
+        <div class="riddle-q">${st.riddle}</div>
+        <div class="answer-row">
+          <input type="text" id="answer" autocomplete="off" autocapitalize="off" placeholder="Твой ответ…" aria-label="Ответ на загадку">
+          <button id="go">Идти</button>
+        </div>
+        <div class="feedback" id="fb"></div>
+        <button class="hint-btn" id="hint">Попросить совета у Гэндальфа</button>
+      </div>
+    `;
+  }
+
+  stage.innerHTML = `<div class="journey">${dots}</div><div class="scene">${inner}</div>`;
+
+  if(!st.final){
+    const input = document.getElementById("answer");
+    const fb = document.getElementById("fb");
+    const check = ()=>{
+      const v = norm(input.value);
+      if(!v) return;
+      const exact = st.answers.map(norm).includes(v);
+      const part = (st.contains||[]).some(w=>v.includes(norm(w)));
+      if(exact || part){
+        fb.className = "feedback";
+        fb.textContent = "Путь открыт…";
+        setTimeout(()=>{ current++; render(current); window.scrollTo(0,0); }, 700);
+      } else {
+        fb.className = "feedback wrong";
+        fb.textContent = st.wrong;
+        input.select();
+      }
+    };
+    document.getElementById("go").addEventListener("click", check);
+    input.addEventListener("keydown", e=>{ if(e.key==="Enter") check(); });
+    document.getElementById("hint").addEventListener("click", ()=>{
+      fb.className = "feedback";
+      fb.textContent = "Гэндальф: «" + st.hint + "»";
+    });
+  }
+}
+
+document.body.insertAdjacentHTML("afterbegin", '<div id="stage"></div>');
+render(0);
+</script>
+</body>
+</html>
